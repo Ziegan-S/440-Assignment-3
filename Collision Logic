@@ -1,0 +1,49 @@
+--Collision logic
+-- player sprite: 1
+-- wall tile: 16 (flag 0)
+
+player = {
+    x = 64,
+    y = 64,
+    spd = 1,
+    size = 8 -- size of the sprite (assumes 8x8)
+}
+
+function _update()
+    local dx, dy = 0, 0
+    if btn(0) then dx = -1 end
+    if btn(1) then dx = 1 end
+    if btn(2) then dy = -1 end
+    if btn(3) then dy = 1 end
+
+    try_move(player, dx, dy)
+end
+
+function try_move(obj, dx, dy)
+    local nx = obj.x + dx * obj.spd
+    local ny = obj.y + dy * obj.spd
+
+    -- check all corners of sprite box
+    if not (
+        is_wall(nx, ny) or
+        is_wall(nx + obj.size - 1, ny) or
+        is_wall(nx, ny + obj.size - 1) or
+        is_wall(nx + obj.size - 1, ny + obj.size - 1)
+    ) then
+        obj.x = nx
+        obj.y = ny
+    end
+end
+
+function is_wall(x, y)
+    local tx = flr(x / 8)
+    local ty = flr(y / 8)
+    local tile = mget(tx, ty)
+    return fget(tile, 0) -- true if wall (flag 0)
+end
+
+function _draw()
+    cls()
+    map(0, 0, 0, 0, 16, 16)
+    spr(1, player.x, player.y)
+end
